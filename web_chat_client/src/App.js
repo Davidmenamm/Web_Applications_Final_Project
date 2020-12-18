@@ -11,11 +11,6 @@ const App = () => {
     const [isRegistered, setIsRegistered] = useState(false);
     const [name, setName] = useState("");
 
-    // print change of name
-    useEffect(() =>{
-        console.log('name is', name);
-    }, [name])
-
     // app container
     return (
         <div>
@@ -27,4 +22,4 @@ const App = () => {
         </div>
     );
 }
-export default React.memo(App);
+export default App;

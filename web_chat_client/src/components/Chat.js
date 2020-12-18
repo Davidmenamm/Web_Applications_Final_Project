@@ -33,6 +33,7 @@ const Chat = ({userName}) => {
             Socket.off();
         })
         return () => {
+            // avoid loop call to socket
             Socket.off();
         }
     }, [receivedMsgs])
@@ -87,4 +88,4 @@ const Chat = ({userName}) => {
     )
 }
 
-export default React.memo(Chat);
+export default Chat;
