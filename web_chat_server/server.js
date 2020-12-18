@@ -16,16 +16,23 @@ const httpServer = http.createServer(app);
 const io = socketio(httpServer, {
     cors: {
       origin: "http://localhost:3000",
-      methods: ["GET", "POST"]
+      methods: ["GET", "POST", "PUT"]
     }
   });
+
 
 // event handler for connection event in default namespace
 io.on('connection',  socket => {
     console.log('entro a connection con default namespace "/" ');
     // event handlers for received events on server
-    socket.on('conectado', () => {
-        console.log('Usuario Conectado!');
+    // when user connects to chat
+    socket.on('connected', (userName) => {
+        console.log(`User ${userName} has connected`);
+    })
+    // send message to all chat members
+    socket.on('sendAll', (userName, msg) => {
+        io.emit('messageClients', userName, msg);
+        console.log('Send Message to all clients');
     })
 });
 

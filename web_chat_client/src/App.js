@@ -1,16 +1,30 @@
 /**
  * Main page, for users to register before using web chat room
 */
-import {socket} from './components/Socket'
+import React, {useState, useEffect} from 'react';
+import Register from './components/Register';
+import Chat from './components/Chat';
 
+// application container
 const App = () => {
-  // test realtime communication
-  const test = socket.emit('conectado', 'Nuevo cliente!');
-  console.log(test);
-  return (
-    <div>
-        Testing Realtime communication between browser client and web server
-    </div>
-  );
+    // state managemet
+    const [isRegistered, setIsRegistered] = useState(false);
+    const [name, setName] = useState("");
+
+    // print change of name
+    useEffect(() =>{
+        console.log('name is', name);
+    }, [name])
+
+    // app container
+    return (
+        <div>
+            { isRegistered ?
+            <Chat userName={name}/> 
+            :
+            <Register name={name} setName={setName} setRegistered={setIsRegistered}/>
+            }
+        </div>
+    );
 }
-export default App;
+export default React.memo(App);
