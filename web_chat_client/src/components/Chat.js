@@ -11,10 +11,13 @@ const Chat = ({userName}) => {
     const [currentMsg, setCurrentMsg] = useState('');
     const [receivedMsgs, setReceivedMsgs] = useState([])
     const [msgsText, setMsgsText] = useState('')
+    const [onlineList, setOnlineList] = useState([]);
+    const selectedUser = ''
     
     // connect user when enters to chat
     useEffect(()=>{
-        Socket.emit('connected', userName);        
+        Socket.emit('connected', userName);       
+        // Aquí se debe 
         // limpiar socket
         return () => { Socket.off() }
     }, [])
@@ -37,6 +40,12 @@ const Chat = ({userName}) => {
             Socket.off();
         }
     }, [receivedMsgs])
+
+    useEffect(()=>{
+        Socket.on('updateList', (userList) => {
+            setOnlineList(userList);
+        })
+    }, [onlineList])
 
 
     // manage hangdlers
@@ -81,6 +90,13 @@ const Chat = ({userName}) => {
                         onChange={(e) => setCurrentMsg(e.target.value)}
                         onKeyPress={handleKeyPress}
                     />
+                    <select value={selectedUser}>
+
+                        {onlineList.map((v) => {
+                            return <option key={v} value={v}>{v}</option>;
+                        })} 
+                        
+                    </select>
                     <button> Send </button>
                 </form>
             </div>
