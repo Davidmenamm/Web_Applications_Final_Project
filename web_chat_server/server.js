@@ -51,17 +51,22 @@ io.on('connection',  socket => {
     });
     socket.on('disconnect', () => {
         //remove this client from online list
-        let had = Array.from(userSocketIdMap.keys());
         userName = removeClientFromMap(socket.id);
-        let has = Array.from(userSocketIdMap.keys());
         io.emit('updateList', Array.from(userSocketIdMap.keys()));
-        console.log(`User had:${had} has:${has} username:${userName} disconnected`);
+        console.log(`User ${userName} disconnected`);
     });
     // send message to all chat members
     socket.on('sendAll', (userName, msg) => {
         // Aquí se debe agregar la interacción con la capa de persistencia
         io.emit('messageClients', userName, msg);
         console.log('Send Message to all clients');
+    });
+
+    socket.on('sendTo', (fromUser, toUser, msg) => {
+        // Aquí se debe agregar la interacción con la capa de persistencia
+        let socketId = userSocketIdMap.get(toUser);
+        io.to(socketId).emit('privateMessage', fromUser, msg);
+        console.log(`Send Message from ${fromUser} to ${toUser}`);
     });
 });
 

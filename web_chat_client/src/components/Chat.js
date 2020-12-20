@@ -12,7 +12,7 @@ const Chat = ({userName}) => {
     const [receivedMsgs, setReceivedMsgs] = useState([])
     const [msgsText, setMsgsText] = useState('')
     const [onlineList, setOnlineList] = useState([]);
-    const selectedUser = ''
+    const [selectedUser, setSelectedUser] = useState('');
     
     // connect user when enters to chat
     useEffect(()=>{
@@ -35,6 +35,9 @@ const Chat = ({userName}) => {
             console.log('received after ', receivedMsgs);
             Socket.off();
         })
+        Socket.on('privateMessage', (fromName, msg) =>{
+            setReceivedMsgs([...receivedMsgs, fromName.concat(' (private):', msg)]); 
+        })
         return () => {
             // avoid loop call to socket
             Socket.off();
@@ -52,7 +55,12 @@ const Chat = ({userName}) => {
     const manageSending = (e) =>{
         e.preventDefault();
         console.log('userName ', userName);
-        Socket.emit('sendAll', userName, currentMsg);
+        if (selectedUser === 'To everyone'){
+            Socket.emit('sendAll', userName, currentMsg);
+        } else{
+            Socket.emit('sendTo', userName, selectedUser, currentMsg);
+        }
+        
         // clean message box
         setCurrentMsg('');
         // console.log('message sent');
@@ -65,6 +73,10 @@ const Chat = ({userName}) => {
             manageSending(e);
         }
       }
+
+    const handleSelectChange = (e) => {
+        setSelectedUser(e.target.value);
+    }
 
     return (
         <>
@@ -90,8 +102,8 @@ const Chat = ({userName}) => {
                         onChange={(e) => setCurrentMsg(e.target.value)}
                         onKeyPress={handleKeyPress}
                     />
-                    <select value={selectedUser}>
-
+                    <select value={selectedUser} onChange={handleSelectChange}>
+                        <option selected key={'To everyone'} value={'To everyone'}>{'To everyone'}</option>
                         {onlineList.map((v) => {
                             return <option key={v} value={v}>{v}</option>;
                         })} 
