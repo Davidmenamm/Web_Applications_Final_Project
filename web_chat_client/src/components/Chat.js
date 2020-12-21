@@ -5,6 +5,7 @@
 import React, {useState, useEffect} from 'react';
 import {Socket} from '../utils/Socket';
 
+
 // Chat Component
 const Chat = ({userName}) => {
     // state management
@@ -34,10 +35,10 @@ const Chat = ({userName}) => {
             setReceivedMsgs([...receivedMsgs, fromName.concat(':', msg)]); 
             console.log('received after ', receivedMsgs);
             Socket.off();
-        })
+        });
         Socket.on('privateMessage', (fromName, msg) =>{
             setReceivedMsgs([...receivedMsgs, fromName.concat(' (private):', msg)]); 
-        })
+        });
         return () => {
             // avoid loop call to socket
             Socket.off();
@@ -59,6 +60,7 @@ const Chat = ({userName}) => {
             Socket.emit('sendAll', userName, currentMsg);
         } else{
             Socket.emit('sendTo', userName, selectedUser, currentMsg);
+            setReceivedMsgs([...receivedMsgs, userName.concat(` (To: ${selectedUser}):`, currentMsg)]);
         }
         
         // clean message box
@@ -77,6 +79,8 @@ const Chat = ({userName}) => {
     const handleSelectChange = (e) => {
         setSelectedUser(e.target.value);
     }
+
+    
 
     return (
         <>
@@ -105,7 +109,8 @@ const Chat = ({userName}) => {
                     <select value={selectedUser} onChange={handleSelectChange}>
                         <option selected key={'To everyone'} value={'To everyone'}>{'To everyone'}</option>
                         {onlineList.map((v) => {
-                            return <option key={v} value={v}>{v}</option>;
+                            if(v !== userName)
+                                return <option key={v} value={v}>{v}</option>;
                         })} 
                         
                     </select>
