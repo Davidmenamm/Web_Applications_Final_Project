@@ -11,6 +11,7 @@
   "author": "David Mena, Juan Arosemena, Manolo Noboa",
   "license": "ISC",
   "dependencies": {
+    "mysql": "2.18.1",
     "express": "^4.17.1",
     "socket.io": "^3.0.4"
   },

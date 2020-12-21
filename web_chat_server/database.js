@@ -3,8 +3,8 @@ const mysql = require('mysql')
 const pool = mysql.createPool({
   connectionLimit: 10,
   host: 'localhost',
-  user: 'root',
-  password: 'password',
+  user: 'ChatAdmin',
+  password: 'AppChatAdmin202012',
   database: 'mydb'
 })
 
@@ -12,14 +12,15 @@ const pool = mysql.createPool({
 pool.getConnection((err, connection) => {
   if (err) {
     if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-      console.error('Database connection was closed.')
+      console.log('Database connection was closed.')
     }
     if (err.code === 'ER_CON_COUNT_ERROR') {
-      console.error('Database has too many connections.')
+      console.log('Database has too many connections.')
     }
     if (err.code === 'ECONNREFUSED') {
-      console.error('Database connection was refused.')
+      console.log('Database connection was refused.')
     }
+    console.log(err);
   }
 
   if (connection) connection.release()

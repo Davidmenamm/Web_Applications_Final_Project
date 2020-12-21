@@ -12,7 +12,7 @@ const Chat = ({userName}) => {
     const [receivedMsgs, setReceivedMsgs] = useState([])
     const [msgsText, setMsgsText] = useState('')
     const [onlineList, setOnlineList] = useState([]);
-    const [selectedUser, setSelectedUser] = useState('');
+    const [selectedUser, setSelectedUser] = useState('To everyone');
     
     // connect user when enters to chat
     useEffect(()=>{
