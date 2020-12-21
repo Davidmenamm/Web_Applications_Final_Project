@@ -11,6 +11,10 @@ const App = () => {
     const [isRegistered, setIsRegistered] = useState(false);
     const [name, setName] = useState("");
 
+    useEffect(()=>{
+        console.log("Application started.")
+    })
+
     // app container
     return (
         <div>
