@@ -12,27 +12,26 @@ const Chat = ({userName}) => {
     const [receivedMsgs, setReceivedMsgs] = useState([])
     const [msgsText, setMsgsText] = useState('')
     const [onlineList, setOnlineList] = useState([]);
-    const [selectedUser, setSelectedUser] = useState('');
+    const [selectedUser, setSelectedUser] = useState('To everyone');
     
     // connect user when enters to chat
     useEffect(()=>{
-        Socket.emit('connected', userName);       
-        // Aquí se debe 
-        // limpiar socket
+        Socket.emit('newClient', userName);       
+        // Aquí se debe limpiar socket
         return () => { Socket.off() }
     }, [])
 
     // active when receivedMsgs changes
     useEffect(()=>{
-        console.log('call back function');
+        // console.log('call back function');
         const lastReceivedMsg = receivedMsgs[receivedMsgs.length-1];
         if (lastReceivedMsg) setMsgsText( msgsText.concat( lastReceivedMsg, '\n' )); 
         Socket.on('messageClients', (fromName, msg) =>{
-            console.log('call server');
-            console.log('received ', receivedMsgs);
-            console.log('received txt ', msgsText);
+            // console.log('call server');
+            // console.log('received ', receivedMsgs);
+            // console.log('received txt ', msgsText);
             setReceivedMsgs([...receivedMsgs, fromName.concat(':', msg)]); 
-            console.log('received after ', receivedMsgs);
+            // console.log('received after ', receivedMsgs);
             Socket.off();
         })
         Socket.on('privateMessage', (fromName, msg) =>{
@@ -54,7 +53,7 @@ const Chat = ({userName}) => {
     // manage hangdlers
     const manageSending = (e) =>{
         e.preventDefault();
-        console.log('userName ', userName);
+        // console.log('userName ', userName);
         if (selectedUser === 'To everyone'){
             Socket.emit('sendAll', userName, currentMsg);
         } else{
