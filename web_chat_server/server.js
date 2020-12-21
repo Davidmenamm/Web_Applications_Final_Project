@@ -6,6 +6,7 @@
 const express = require('express');
 const http = require('http');
 const socketio = require('socket.io');
+const { networkInterfaces } = require('os');
 
 // constants
 const PORT = 3001;
@@ -31,17 +32,18 @@ function addClientToMap(userName, socketId){
 function removeClientFromMap(socketId){
     let userName = '';
     for (let [key, value] of userSocketIdMap.entries()) {
-        if (value === socketId)
+        if (value == socketId)
           userName = key;
           break;
     }
+    
     userSocketIdMap.delete(userName);
     return userName;
 }
 
 // event handler for connection event in default namespace
 io.on('connection',  socket => {
-    console.log('entro a connection con default namespace "/" ');
+    //console.log('entro a connection con default namespace "/" ');
     // event handlers for received events on server
     // when user connects to chat
     socket.on('connected', (userName) => {
@@ -77,7 +79,25 @@ app.get('*', (req, res) => {
 });
 
 // server listening
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, () => {   
+
+    const nets = networkInterfaces();
+    const results = Object.create(null); // Or just '{}', an empty object
+
+    for (const name of Object.keys(nets)) {
+        for (const net of nets[name]) {
+            // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+            if (net.family === 'IPv4' && !net.internal) {
+                if (!results[name]) {
+                    results[name] = [];
+                }
+                results[name].push(net.address);
+            }
+        }
+    }
+
+    // Write IP to a file
+    
     console.log(`Server is up on port ${PORT}!`);
 });
 
