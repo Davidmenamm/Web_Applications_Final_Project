@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
+    "local-ip-url": "^1.0.3",
     "socket.io": "^3.0.4"
   },
   "devDependencies": {

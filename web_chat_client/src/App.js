@@ -34,6 +34,10 @@ const App = () => {
         return () => { Socket.off() }
     }, [connectMe, name])
 
+    useEffect(()=>{
+        console.log("Application started.")
+    })
+
     // app container
     return (
         <div style={{margin:'4rem'}}>
