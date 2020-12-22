@@ -22,7 +22,8 @@ const io = socketio(httpServer, {
   });
 
 const userSocketIdMap = new Map();
-const db_pool = require('./database')
+const db_pool = require('./database');
+const { resolve } = require('path');
 
 
 function addClientToMap(userName, socketId){
@@ -54,13 +55,29 @@ async function addMessageToGeneral(userName, msg){
     })
 }
 
-async function checkChatExists(userA,userB){
-    db_pool.query('SELECT * from user_chat where limit 1')
-    return null;
+async function getChatID(userA,userB){
+    my_query = `Select a.Chat_idChat from (Select * from mydb.user_chat where Users_Name = '${userA}') \
+    as a inner join (Select * from mydb.user_chat where Users_Name = '${userB}') as b on a.Chat_idChat = b.Chat_idChat`;
+    let result = await db_pool.query(my_query);
+    if (result.length>0){
+        return result[0].Chat_idChat;
+    }
+
+    my_query = 'INSERT INTO chat () VALUES ()';
+    result = await db_pool.query(my_query);
+    result = result.insertId;
+    console.log("New chat generated", result);
+    
+    my_query = `INSERT INTO user_chat (Users_Name,Chat_idChat) VALUES ('${userA}','${result}'), ('${userB}','${result}')`;
+    await db_pool.query(my_query);
+    
+    console.log("Linking done");
+    return result;
 }
 
-async function addMessageToChat(){
-    
+async function addMessageToChat(userA,userB,msg){
+    chatID = await getChatID(userA,userB);
+    db_pool.query(`INSERT INTO message (Msg,Chat_idChat,Users_Name) VALUES ('${msg}','${chatID}','${userA}')`)
 }
 
 function removeClientFromMap(socketId){
@@ -104,6 +121,7 @@ io.on('connection',  socket => {
         // Aquí se debe agregar la interacción con la capa de persistencia
         let socketId = userSocketIdMap.get(toUser);
         io.to(socketId).emit('privateMessage', fromUser, msg);
+        addMessageToChat(fromUser,toUser,msg);
         console.log(`Send Message from ${fromUser} to ${toUser}`);
     });
 });

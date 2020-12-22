@@ -15,23 +15,28 @@ CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
 USE `mydb` ;
 
 -- -----------------------------------------------------
--- Table `mydb`.`GlobalChat`
+-- Table `mydb`.`Users`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`GlobalChat` (
-  `idGlobalChat` INT NOT NULL AUTO_INCREMENT,
-  `From` VARCHAR(45) NOT NULL,
-  `Msg` LONGTEXT NOT NULL,
-  PRIMARY KEY (`idGlobalChat`))
+CREATE TABLE IF NOT EXISTS `mydb`.`Users` (
+  `Name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`Name`))
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Users`
+-- Table `mydb`.`GlobalChat`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Users` (
-  `idUsers` INT NOT NULL AUTO_INCREMENT,
-  `Name` VARCHAR(45) NULL,
-  PRIMARY KEY (`idUsers`))
+CREATE TABLE IF NOT EXISTS `mydb`.`GlobalChat` (
+  `idGlobalChat` INT NOT NULL AUTO_INCREMENT,
+  `Msg` LONGTEXT NOT NULL,
+  `From` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idGlobalChat`),
+  INDEX `fk_GlobalChat_Users1_idx` (`From` ASC) VISIBLE,
+  CONSTRAINT `fk_GlobalChat_Users1`
+    FOREIGN KEY (`From`)
+    REFERENCES `mydb`.`Users` (`Name`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -51,20 +56,20 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `mydb`.`Message` (
   `idMessage` INT NOT NULL AUTO_INCREMENT,
   `Msg` LONGTEXT NULL,
-  `msg_datetime` DATETIME NULL,
+  `msg_datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
   `Chat_idChat` INT NOT NULL,
-  `Users_idUsers` INT NOT NULL,
-  PRIMARY KEY (`idMessage`, `Chat_idChat`, `Users_idUsers`),
+  `Users_Name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idMessage`, `Chat_idChat`),
   INDEX `fk_Message_Chat1_idx` (`Chat_idChat` ASC) VISIBLE,
-  INDEX `fk_Message_Users1_idx` (`Users_idUsers` ASC) VISIBLE,
+  INDEX `fk_Message_Users1_idx` (`Users_Name` ASC) VISIBLE,
   CONSTRAINT `fk_Message_Chat1`
     FOREIGN KEY (`Chat_idChat`)
     REFERENCES `mydb`.`Chat` (`idChat`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Message_Users1`
-    FOREIGN KEY (`Users_idUsers`)
-    REFERENCES `mydb`.`Users` (`idUsers`)
+    FOREIGN KEY (`Users_Name`)
+    REFERENCES `mydb`.`Users` (`Name`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -74,14 +79,14 @@ ENGINE = InnoDB;
 -- Table `mydb`.`user_chat`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mydb`.`user_chat` (
-  `Users_idUsers` INT NOT NULL,
+  `Users_Name` VARCHAR(45) NOT NULL,
   `Chat_idChat` INT NOT NULL,
-  PRIMARY KEY (`Users_idUsers`, `Chat_idChat`),
+  PRIMARY KEY (`Users_Name`, `Chat_idChat`),
   INDEX `fk_Users_has_Chat_Chat1_idx` (`Chat_idChat` ASC) VISIBLE,
-  INDEX `fk_Users_has_Chat_Users_idx` (`Users_idUsers` ASC) VISIBLE,
-  CONSTRAINT `fk_Users_has_Chat_Users`
-    FOREIGN KEY (`Users_idUsers`)
-    REFERENCES `mydb`.`Users` (`idUsers`)
+  INDEX `fk_Users_has_Chat_Users1_idx` (`Users_Name` ASC) VISIBLE,
+  CONSTRAINT `fk_Users_has_Chat_Users1`
+    FOREIGN KEY (`Users_Name`)
+    REFERENCES `mydb`.`Users` (`Name`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Users_has_Chat_Chat1`

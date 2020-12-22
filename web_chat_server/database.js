@@ -5,7 +5,8 @@ const pool = mysql.createPool({
   host: 'localhost',
   user: 'ChatAdmin',
   password: 'AppChatAdmin202012',
-  database: 'mydb'
+  database: 'mydb',
+  charset: 'utf8'
 })
 
 // Ping database to check for common exception errors.
