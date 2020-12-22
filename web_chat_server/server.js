@@ -27,7 +27,24 @@ const { resolve } = require('path');
 
 
 function addClientToMap(userName, socketId){
-    userSocketIdMap.set(userName, socketId);
+    // check if user name already exists
+    // console.log('attemp adding userName to map', userName);
+    // otherSockId = userSocketIdMap.get(userName);
+    // console.log('other sock id', otherSockId, typeof(otherSockId));
+    // console.log(socketId, typeof(socketId));
+    // userSocketIdMap.forEach((values,keys)=>{ 
+    //     console.log('testttt');
+    //     console.log('active are this ', keys, values, typeof(keys), typeof(values));
+    //  })
+
+    let addedUser = false;
+    // avoid repeated names
+    if (typeof(userSocketIdMap.get(userName)) === 'undefined'){
+        // console.log('Anadir usuario ->', userName, socketId);
+        userSocketIdMap.set(userName, socketId);
+        addedUser = true;
+    }
+    return addedUser;
 }
 
 async function addClientToDB(userName){
@@ -97,12 +114,32 @@ io.on('connection',  socket => {
     //console.log('entro a connection con default namespace "/" ');
     // event handlers for received events on server
     // when user connects to chat
-    socket.on('connected', (userName) => {
-        addClientToMap(userName, socket.id);
-        addClientToDB(userName);
-        io.emit('updateList', Array.from(userSocketIdMap.keys()));
-        console.log(`User ${userName} has connected`);
+    let responseMsg = '';
+    socket.on('connectme', (userName) => {
+        // add user
+        const added = addClientToMap(userName, socket.id);
+        // if user was correctly added
+        if (added){
+            responseMsg = 'Sucessful connection';
+            io.to(socket.id).emit('validAccess', 'YES', responseMsg);
+            console.log(`User ${userName} has connected`);
+            console.log('Active users are:')
+            userSocketIdMap.forEach((values,keys)=>{ 
+               console.log(keys)
+            })
+            addClientToDB(userName);
+        }
+        // if not correctly added due to repeated name
+        else {
+            console.log(`User ${userName} was denied acess`);
+            responseMsg = 'The user is already connected.'
+            io.to(socket.id).emit('validAccess', 'NO', responseMsg);
+        }              
     });
+    socket.on('newClient', (name) => {
+        // update list for all clients
+        io.emit('updateList', Array.from(userSocketIdMap.keys()));
+    })
     socket.on('disconnect', () => {
         //remove this client from online list
         userName = removeClientFromMap(socket.id);
